@@ -10,6 +10,9 @@ import java.net.Socket;
 import com.myqq.db.*;
 
 public class ServerExchangeMessage {
+	public static void main(String []args){
+		new ServerExchangeMessage();
+	}
 
 	private final int L_port = 1100;
 	private final int S_port = 1101;
@@ -41,6 +44,10 @@ public class ServerExchangeMessage {
 						ins.read(b);
 						String clientid = new String(b,"UTF-8");
 						
+						//用于测试！
+						System.out.println(clientid);
+						
+						
 						//查找用户是否已经在线
 						boolean flag = false;
 						Client oneclient = null;
@@ -71,7 +78,8 @@ public class ServerExchangeMessage {
 						else
 						{
 							//如果用户不在线，新建客户实例，并开启线程。
-							oneclient = new Client(socket,clientid,new ClientSocketThread(socket,oneclient));
+							oneclient = new Client(socket,clientid,null);
+							oneclient.setClientThread(new ClientSocketThread(socket,oneclient));
 							synchronized(DataCaching.onlineClient)
 							{
 								DataCaching.onlineClient.add(oneclient);

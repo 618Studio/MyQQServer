@@ -24,6 +24,9 @@ public class ClientSocketThread {
 		thread = new Thread(new Runnable(){
 			public void run()
 			{
+				//开始线程
+				//测试
+				System.out.println("开始线程");
 				while(!exit)
 				{
 					//开始读取数据包
@@ -67,6 +70,8 @@ public class ClientSocketThread {
 	//处理客户发送的心跳包
 	private void handleClientHeartBeat()
 	{
+		//测试
+		System.out.println("收到心跳");
 		//设置上一次心跳时间点
 		Calendar calendar = Calendar.getInstance();
 		client.setLastTime(calendar);
@@ -76,14 +81,19 @@ public class ClientSocketThread {
 	//处理客户发送的聊天记录
 	private void handleClientChatMessage(String content)
 	{
+		//测试
+		System.out.println("开始接受聊天记录");
 		String[] msg = content.split("\n",5);
+		
+		//测试
+		System.out.println(msg[0]+msg[1]+msg[2]+msg[3]+msg[4]);
 		ChatMessage chatMessage = new ChatMessage(msg[0],msg[1],msg[2],msg[3],msg[4]);
 		
 		Client online = null;
 		boolean flag = false;
 		for(Client client: DataCaching.onlineClient)
 		{
-			if(msg[1].equals(client.getId()))
+			if(msg[2].equals(client.getId()))
 			{
 				online = client;
 				flag = true;
@@ -91,6 +101,7 @@ public class ClientSocketThread {
 			}
 		}
 		
+		System.out.println(flag);
 		//如果在线
 		if(flag==true)
 		{
@@ -127,8 +138,13 @@ public class ClientSocketThread {
 		}
 		else
 		{
+			
+			//测试！
+			System.out.println(chatMessage.getContent());
+			
 			//存至数据库
 			ConnectDB.saveMessage(chatMessage);
+		
 		}
 	}
 	
@@ -157,7 +173,5 @@ public class ClientSocketThread {
 	public void stop()
 	{
 		exit = true;
-	}
-	
-	
+	}	
 }

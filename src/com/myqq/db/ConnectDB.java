@@ -19,11 +19,28 @@ public class ConnectDB {
 		Account a = new Account("10000",null,null);
 		getFriend(a);
 	}*/
+	private static ConnectDB instance = new ConnectDB();
+	public static ConnectDB getInstance(){
+		   return instance;
+	}
 	
 	public static Connection conn;
 	//public static ResultSet rs;
 	
-	public ConnectDB() {
+	private void closeDB(){
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	protected void finalize()
+    {
+		 instance.closeDB(); 
+    }
+	
+	private ConnectDB() {
 		// 驱动程序名
 		String driver = "com.mysql.jdbc.Driver";
 		// URL指向要访问的数据库名
