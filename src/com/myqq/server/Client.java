@@ -1,12 +1,13 @@
 package com.myqq.server;
 
 import java.net.Socket;
+import java.util.Calendar;
 
 public class Client {
 
 	private Socket socket;
 	private String id;
-	private String lastTime;
+	private Calendar lastTime;
 	private ClientSocketThread clientThread;
 	
 	public Client(Socket socket, String id, ClientSocketThread clientThread)
@@ -14,6 +15,7 @@ public class Client {
 		this.socket = socket;
 		this.id = id;
 		this.clientThread = clientThread;
+		this.lastTime = Calendar.getInstance();
 	}
 
 	/**
@@ -61,14 +63,14 @@ public class Client {
 	/**
 	 * @return the lastTime
 	 */
-	public String getLastTime() {
+	public Calendar getLastTime() {
 		return lastTime;
 	}
 
 	/**
 	 * @param lastTime the lastTime to set
 	 */
-	public void setLastTime(String lastTime) {
+	public void setLastTime(Calendar lastTime) {
 		this.lastTime = lastTime;
 	}
 		

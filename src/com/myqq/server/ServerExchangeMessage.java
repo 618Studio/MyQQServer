@@ -1,21 +1,24 @@
 package com.myqq.server;
 
 import java.io.DataInputStream;
-
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import com.myqq.db.*;
 
 public class ServerExchangeMessage {
 
+	private final int L_port = 1100;
+	private final int S_port = 1101;
+	private Socket socket;
 	
 	public ServerExchangeMessage()
 
 	{
-		final int L_port = 1100;
-		final int S_port = 1101;
+		
 		
 		//开启长连接检测线程
 		new Thread(new Runnable(){
@@ -72,6 +75,7 @@ public class ServerExchangeMessage {
 							synchronized(DataCaching.onlineClient)
 							{
 								DataCaching.onlineClient.add(oneclient);
+								DataCaching.onlineNr++;
 							}
 							oneclient.getClientThread().start();
 						}
@@ -97,7 +101,7 @@ public class ServerExchangeMessage {
 					while(true)
 					{
 						
-						Socket socket = serverSocket.accept();
+						socket = serverSocket.accept();
 						
 						InputStream in = socket.getInputStream();
 						DataInputStream ins = new DataInputStream(in);
@@ -141,20 +145,117 @@ public class ServerExchangeMessage {
 	private void handleClientRequestFriends(String content)
 	{
 		
-		Account account = new Account(content, content, content);
-		String[][] list = ConnectDB.getFriend(account);
+		Account account = new Account(content,null,null);
+		String[][] friends = ConnectDB.getFriend(account);
+		OutputStream out;
+		try {
+			out = socket.getOutputStream();
+			DataOutputStream outs = new DataOutputStream(out);
+		
+			String s = null;
+			for(int i=0;i<friends.length;i++)
+			{
+				s += friends[i][0] + "\n" +  friends[i][1] + "\n";
+			}
+			
+			byte[] b = s.getBytes("UTF-8");
+			int totalLen = 1 + 4 + b.length;
+			outs.writeByte(MessageType.SERVER_RESPONSE_FRIENDS);
+			outs.writeInt(totalLen);
+			outs.write(b);
+			
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 	}
 	
 	//处理客户请求在线好友列表
 	private void handleClientRequestOnline(String content)
 	{
+		Account account = new Account(content,null,null);
+		String[][] friends = ConnectDB.getFriend(account);
+		
+		//匹配在线的好友
+		String online = null;
+		for(int i=0;i<friends.length;i++ )
+		{
+			for(Client client:DataCaching.onlineClient)
+			{
+				if(client.getClientThread().equals(friends[i][0]))
+				{
+					online += client.getId() + "\n";
+				}
+					
+			}
+		}
+		
+		
+		//发送在线的好友
+		OutputStream out;
+		try {
+			out = socket.getOutputStream();
+			DataOutputStream outs = new DataOutputStream(out);
+			byte[] b = online.getBytes("UTF-8");
+			int totalLen = 1 + 4 + b.length;
+			outs.writeByte(MessageType.SERVER_RESPONSE_ONLINE);
+			outs.writeInt(totalLen);
+			outs.write(b);
+			
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
 	//处理客户请求登录
 	private void handleClientRequestLogin(String content)
 	{
+		String[] idAndPasswd = content.split("\n",2);
+		Account account = new Account(idAndPasswd[0],null,idAndPasswd[1]);
+		boolean flag = ConnectDB.checkAccount(account);
 		
+		if(flag==true)
+		{
+			//登录成功
+			OutputStream out;
+			try {
+				out = socket.getOutputStream();
+				DataOutputStream outs = new DataOutputStream(out);
+				int totalLen = 1 + 4 + 1;
+				outs.writeByte(MessageType.SERVER_RESPONSE_LOGIN);
+				outs.writeInt(totalLen);
+				outs.write(1);
+				
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			//登录失败
+			OutputStream out;
+			try {
+				out = socket.getOutputStream();
+				DataOutputStream outs = new DataOutputStream(out);
+				int totalLen = 1 + 4 + 1;
+				outs.writeByte(MessageType.SERVER_RESPONSE_LOGIN);
+				outs.writeInt(totalLen);
+				outs.write(0);
+				
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		socket.close();
 	}
 }

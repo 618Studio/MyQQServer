@@ -8,13 +8,15 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Calendar;
 
+import com.myqq.db.ConnectDB;
+
 public class ClientSocketThread {
 
 	private Socket socket;
 	private Thread thread;
 	private Client client;
 	public final byte[] lock = new byte[0];  //用于发送信息的锁
-	private volatile boolean exit = false; 
+	private volatile boolean exit = false;  //用于退出该线程
 	public ClientSocketThread(Socket soc,Client client)
 	{
 		this.socket = soc; 
@@ -67,7 +69,7 @@ public class ClientSocketThread {
 	{
 		//设置上一次心跳时间点
 		Calendar calendar = Calendar.getInstance();
-		client.setLastTime(calendar.toString());
+		client.setLastTime(calendar);
 				
 	}
 	
@@ -126,7 +128,7 @@ public class ClientSocketThread {
 		else
 		{
 			//存至数据库
-			
+			ConnectDB.saveMessage(chatMessage);
 		}
 	}
 	
