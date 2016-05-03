@@ -8,17 +8,22 @@ import java.sql.Statement;
 
 import com.myqq.server.Account;
 import com.myqq.server.ChatMessage;
-import com.sun.corba.se.impl.protocol.giopmsgheaders.Message;
 
 public class ConnectDB {
-	public static void main(String args[]){
-		ConnectDB conn = new ConnectDB();
-	}
+	/*public static void main(String args[]){
+		ConnectDB connect = new ConnectDB();
+		String s = "2016-05-03 09:25:12";
+		Timestamp time = Timestamp.valueOf(s);
+		ChatMessage mes = new ChatMessage("1", "10000", "10001", s, "helloworld!");
+		System.out.println(connect.saveMessage(mes));
+		Account a = new Account("10000",null,null);
+		getFriend(a);
+	}*/
 	
 	public static Connection conn;
-	public static ResultSet rs;
+	//public static ResultSet rs;
 	
-	public void connectDB() {
+	public ConnectDB() {
 		// 驱动程序名
 		String driver = "com.mysql.jdbc.Driver";
 		// URL指向要访问的数据库名
@@ -40,7 +45,22 @@ public class ConnectDB {
 		}
 	}
 	
+	private static int update(String sql){
+		int rs;
+		try {
+			// statement用来执行SQL语句
+			Statement statement = conn.createStatement();
+			// 要执行的SQL语句
+			rs = statement.executeUpdate(sql);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
 	private static ResultSet query(String sql) {
+		ResultSet rs;
 		try {
 			// statement用来执行SQL语句
 			Statement statement = conn.createStatement();
@@ -60,7 +80,7 @@ public class ConnectDB {
 		try{
 			res.last();
 	        int row = res.getRow();
-	        rs.beforeFirst();//光标回滚
+	        res.beforeFirst();//光标回滚
 	        	String[][] result= new String[row][2];
 		
 			int i = 0;
@@ -68,6 +88,7 @@ public class ConnectDB {
 				String findNickname = "SELECT Anickname FROM account where Aid='"+res.getString("FB")+"';";
 				ResultSet res2 = query(findNickname);
 				result[i][0] = res.getString("FB");
+				res2.next();
 				result[i++][1] = res2.getString("Anickname"); 
 			}
 			return result;
@@ -80,18 +101,41 @@ public class ConnectDB {
 	
 	public static boolean saveMessage(ChatMessage message){
 		String sql = "insert into delaymessage(Mid,Mfrom,Mto,Mtime,Mcontent) values('" + message.getId() + "','" + message.getFrom() +"','"+message.getTo() + "','" + message.getTime()+ "','" +message.getContent()+"')";
-		if (query(sql)!=null)
+		if (update(sql)!=-1)
 			return true;
 		else return false;
 	}
 	
 	public boolean register(Account account){
-		String sql = "select * from account";
+		String sql = "select * from account where Aid = '"+account.getId()+"'";
 		ResultSet rst=query(sql);
-		if (rst==null) System.exit(1);
-		sql = "insert into account(Aid,Anickname,Apassword) valuse('" + account.getId() + "','" + account.getNickname() + "','" +account.getPassword()+"')";
-		if (query(sql)!=null)
-			return true;
-		else return false;
+		try {
+			rst.last();
+			if (rst.getRow() !=0) return false;
+			else{
+				sql = "insert into account(Aid,Anickname,Apassword) values('" + account.getId() + "','" + account.getNickname() + "','" +account.getPassword()+"')";
+				if (update(sql)!=-1)
+					return true;
+				else return false;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean cheakAccount(Account account) {
+		String sql = "select * from account where Aid = '"+account.getId() +"'";
+		ResultSet rs=query(sql);
+		try{
+			rs.next();
+			if(rs.getString("Apassword").equals(account.getPassword())){
+				return true;
+			}else
+				return false;
+		}catch(Exception e){
+			System.exit(1);
+			return false;
+		}
 	}
 }
