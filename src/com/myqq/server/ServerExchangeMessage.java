@@ -256,6 +256,5 @@ public class ServerExchangeMessage {
 				e.printStackTrace();
 			}
 		}
-		socket.close();
 	}
 }

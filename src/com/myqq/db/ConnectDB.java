@@ -106,7 +106,7 @@ public class ConnectDB {
 		else return false;
 	}
 	
-	public boolean register(Account account){
+	public static boolean register(Account account){
 		String sql = "select * from account where Aid = '"+account.getId()+"'";
 		ResultSet rst=query(sql);
 		try {
@@ -124,7 +124,7 @@ public class ConnectDB {
 		}
 	}
 	
-	public boolean cheakAccount(Account account) {
+	public static boolean checkAccount(Account account) {
 		String sql = "select * from account where Aid = '"+account.getId() +"'";
 		ResultSet rs=query(sql);
 		try{
