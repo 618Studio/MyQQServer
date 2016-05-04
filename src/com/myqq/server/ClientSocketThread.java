@@ -143,7 +143,8 @@ public class ClientSocketThread {
 			System.out.println(chatMessage.getContent());
 			
 			//´æÖÁÊı¾İ¿â
-			ConnectDB.saveMessage(chatMessage);
+			ConnectDB connectDB = ConnectDB.getInstance();
+			connectDB.saveMessage(chatMessage);
 		
 		}
 	}

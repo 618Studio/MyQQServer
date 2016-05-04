@@ -108,7 +108,6 @@ public class ServerExchangeMessage {
 					serverSocket = new ServerSocket(S_port);
 					while(true)
 					{
-						
 						socket = serverSocket.accept();
 						
 						InputStream in = socket.getInputStream();
@@ -127,7 +126,7 @@ public class ServerExchangeMessage {
 				}
 			}
 			
-		});
+		}).start();
 			
 	}
 	
@@ -160,7 +159,8 @@ public class ServerExchangeMessage {
 			out = socket.getOutputStream();
 			DataOutputStream outs = new DataOutputStream(out);
 		
-			String s = null;
+			String s = "";
+			System.out.println(friends.length);
 			for(int i=0;i<friends.length;i++)
 			{
 				s += friends[i][0] + "\n" +  friends[i][1] + "\n";
@@ -226,8 +226,10 @@ public class ServerExchangeMessage {
 	{
 		String[] idAndPasswd = content.split("\n",2);
 		Account account = new Account(idAndPasswd[0],null,idAndPasswd[1]);
+		//test
+		System.out.println(account.getId()+account.getPassword());
 		boolean flag = ConnectDB.checkAccount(account);
-		
+		System.out.println(flag);
 		if(flag==true)
 		{
 			//µÇÂ¼³É¹¦
