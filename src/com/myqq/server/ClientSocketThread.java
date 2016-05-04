@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Calendar;
 
 import com.myqq.db.ConnectDB;
@@ -41,8 +42,16 @@ public class ClientSocketThread {
 						findReceiveMsgType(type,content);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
+						try {
+							socket.close();
+							exit = true;
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 						e.printStackTrace();
 					}
+					
 				
 				}
 			}

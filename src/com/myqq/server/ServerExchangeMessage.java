@@ -188,12 +188,12 @@ public class ServerExchangeMessage {
 		String[][] friends = ConnectDB.getFriend(account);
 		
 		//匹配在线的好友
-		String online = null;
+		String online = "";
 		for(int i=0;i<friends.length;i++ )
 		{
 			for(Client client:DataCaching.onlineClient)
 			{
-				if(client.getClientThread().equals(friends[i][0]))
+				if(client.getId().equals(friends[i][0]))
 				{
 					online += client.getId() + "\n";
 				}
