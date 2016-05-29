@@ -227,7 +227,7 @@ public class ServerExchangeMessage {
 		String[] idAndPasswd = content.split("\n",2);
 		Account account = new Account(idAndPasswd[0],null,idAndPasswd[1]);
 		//test
-		System.out.println(account.getId()+account.getPassword());
+		System.out.println(account.getId()+" "+account.getPassword());
 		boolean flag = ConnectDB.checkAccount(account);
 		System.out.println(flag);
 		if(flag==true)

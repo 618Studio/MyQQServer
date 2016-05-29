@@ -142,7 +142,7 @@ public class ConnectDB {
 											res.getString("Mfrom"), 
 											res.getString("Mto"),
 											res.getString("Mtime"),
-											res.getString("content"));
+											res.getString("Mcontent"));
 			}
 			String delete = "delete from delaymessage where Mto='"+id+"'";
 			update(delete);
