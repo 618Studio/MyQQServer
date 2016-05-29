@@ -8,6 +8,7 @@ import java.sql.Statement;
 
 import com.myqq.server.Account;
 import com.myqq.server.ChatMessage;
+import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
 
 public class ConnectDB {
 	/*public static void main(String args[]){
@@ -91,6 +92,7 @@ public class ConnectDB {
 		}
 	}
 	
+	//返回好友列表
 	public static String[][] getFriend(Account account){
 		String sql = "SELECT FB FROM friend where FA = '"+account.getId()+"';";
 		ResultSet res = query(sql);
@@ -116,6 +118,7 @@ public class ConnectDB {
 		}
 	}
 	
+	//保存滞留消息
 	public static boolean saveMessage(ChatMessage message){
 		String sql = "insert into delaymessage(Mid,Mfrom,Mto,Mtime,Mcontent) values('" + message.getId() + "','" + message.getFrom() +"','"+message.getTo() + "','" + message.getTime()+ "','" +message.getContent()+"')";
 		if (update(sql)!=-1)
@@ -123,6 +126,33 @@ public class ConnectDB {
 		else return false;
 	}
 	
+	//返回滞留信息
+	public static ChatMessage[] getDelayMessage(String id){
+		String sql="SELECT * FROM myQQ.delaymessage where Mto='"+id+"';";
+		ResultSet res=query(sql);
+		try{
+			res.last();
+	        int row = res.getRow();
+	        res.beforeFirst();//光标回滚
+	        	ChatMessage[] result= new ChatMessage[row];
+		
+			int i = 0;
+			while(res.next()){
+				result[i++] = new ChatMessage(res.getString("Mid"), 
+											res.getString("Mfrom"), 
+											res.getString("Mto"),
+											res.getString("Mtime"),
+											res.getString("content"));
+			}
+			String delete = "delete from delaymessage where Mto='"+id+"'";
+			update(delete);
+			return result;
+		}catch (SQLException e){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	//注册
 	public static boolean register(Account account){
 		String sql = "select * from account where Aid = '"+account.getId()+"'";
 		ResultSet rst=query(sql);
